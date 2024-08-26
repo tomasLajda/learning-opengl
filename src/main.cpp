@@ -1,29 +1,12 @@
 #include <glad/glad.h>
 
+#include "shader_s.h"
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <math.h>
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
-
-const char *vertexShaderSource = "#version 330 core\n"
-                                 "layout (location = 0) in vec3 aPos;\n"
-                                 "layout (location = 1) in vec3 aColor;\n"
-                                 "out vec3 ourColor;\n"
-                                 "void main()\n"
-                                 "{\n"
-                                 "   gl_Position = vec4(aPos, 1.0);\n"
-                                 "   ourColor = aColor;\n"
-                                 "}\0";
-
-const char *fragmentShaderSource = "#version 330 core\n"
-                                   "out vec4 FragColor;\n"
-                                   "in vec3 ourColor;\n"
-                                   "void main()\n"
-                                   "{\n"
-                                   "   FragColor = vec4(ourColor, 1.0f);\n"
-                                   "}\n\0";
 
 int main() {
   // Init window for opengl 3.3
@@ -49,34 +32,7 @@ int main() {
 
   glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-  // Creating shader object
-  unsigned int vertexShader;
-  vertexShader = glCreateShader(GL_VERTEX_SHADER);
-
-  // Compiling shader
-  glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-  glCompileShader(vertexShader);
-
-  // Creating a fragment shader
-  unsigned int fragmentShader;
-  fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-  // Compiling a fragment shader
-  glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-  glCompileShader(fragmentShader);
-
-  // Init shader program
-  unsigned int shaderProgram;
-  shaderProgram = glCreateProgram();
-
-  // Linking shaders
-  glAttachShader(shaderProgram, vertexShader);
-  glAttachShader(shaderProgram, fragmentShader);
-  glLinkProgram(shaderProgram);
-
-  // Set and delete shaders
-  glDeleteShader(vertexShader);
-  glDeleteShader(fragmentShader);
+  Shader ourShader("../shaders/vertex.vs", "../shaders/fragment.fs");
 
   // set up vertex data (and buffer(s)) and configure vertex attributes
   float vertices[] = {
@@ -129,9 +85,9 @@ int main() {
     glClear(GL_COLOR_BUFFER_BIT);
 
     // draw our first triangle
-    glUseProgram(shaderProgram);
-    glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every
-                            // time, but we'll do so to keep things a bit more organized
+    ourShader.use();
+    glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it
+                            // every time, but we'll do so to keep things a bit more organized
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
